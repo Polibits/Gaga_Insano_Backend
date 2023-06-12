@@ -1,0 +1,11 @@
+{
+  "name": "backengaga",
+  "version": "1.0.0",
+  "description": "Este repositório contém o backend da plataforma de estudos do [Gagá Insano](www.gagainsano.com.br), desenvolvida em **node.js**.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
