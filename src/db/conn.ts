@@ -4,7 +4,7 @@ console.log(process.env.DATABASE_NAME)
 // credenciais de acesso do banco de dados mysql
 
 /*
- const sequelize = new Sequelize(
+const sequelize = new Sequelize(
     process.env.DB_NAME , 
     process.env.DB_USERNAME ,
     process.env.DB_PASSWORD, 
@@ -16,18 +16,18 @@ console.log(process.env.DATABASE_NAME)
 */
 
 const sequelize = new Sequelize(
-  'GAGABACKEND' , 
-  'root' ,
-  'gui167', 
-  { 
-      host: 'localhost' , 
-      dialect: 'mysql' 
-  }
+    'GAGABACKEND' , 
+    'root' ,
+    'gui167', 
+    { 
+        host: 'localhost' , 
+        dialect: 'mysql' 
+    }
 )
 
 // Synchronize the model with the database
 sequelize.sync()
-  .then(() => console.log('Models synchronized with MySQL database'))
-  .catch((error : any)=> console.error('Error synchronizing models with MySQL database', error));
+    .then(() => console.log('Models synchronized with MySQL database'))
+    .catch((error : any)=> console.error('Error synchronizing models with MySQL database', error));
 
 export default sequelize
