@@ -4,7 +4,7 @@ import { Model, DataTypes } from 'sequelize';
 import sequelize from '../db/conn';
 
 // Interface para o modelo
-interface UserCredentialsAttributes {
+export interface UserCredentialsAttributes {
     userID: string;
     username: string;
     email: string;

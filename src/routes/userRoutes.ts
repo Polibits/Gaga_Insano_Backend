@@ -4,6 +4,7 @@ import UserController from '../controllers/UserController';
 
 
 router.post('/create' , UserController.createUser);
+router.post('/login' , UserController.loginUser)
 
 
 export default router;
