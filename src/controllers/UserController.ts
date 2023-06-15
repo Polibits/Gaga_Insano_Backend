@@ -23,8 +23,8 @@ export default class UserController {
         
         const validation = validationsUser.RegisterValidation(name, email, username , password , confirmpassword)
 
-        if(validation != null){
-            return res.status(500).json({ message: validation })
+        if(validation.length !== 0){
+            return res.status(501).json({ message: validation })
         }
 
         const salt = Auth.new_salt(saltLenght)
