@@ -36,7 +36,7 @@ class User {
      * Obtém o nome de usuário
      * @returns username do usuário
      */
-    public getuUsername(){
+    public getUsername(){
         return this.username
     }
 
