@@ -1,5 +1,5 @@
 import { UserCredentialsAttributes } from "../Interfaces/InterfaceUserCred";
-import { UserCredentials } from "../models/UserCredentials";
+import { UserCredentials } from "../modelsDB/UserCredentials";
 
 export default class UserUtil{
 
