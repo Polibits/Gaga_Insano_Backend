@@ -19,7 +19,7 @@ router.post('/user/login' , UserController.loginUser)
 // router.post('/user/delete', UserController.deleteUser)
 
 /* rotas de leitura */
-// router.get('/user/read/info/all', UserController.getAllUsersInfo)
+ router.get('/user/read/info/all', UserController.getAllUsersInfo)
 // router.get('/user/read/info/one', UserController.getUserInfo)
 
 /* rotas de bloqueio */

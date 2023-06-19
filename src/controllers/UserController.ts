@@ -82,10 +82,14 @@ export default class UserController {
     }
 
 
-    static async showAllUsers(req: Request, res: Response){
-        UserCredentials.findAll().then((promise: any) => {
-            return promise
-        })
+    static async getAllUsersInfo(req: Request, res: Response){
+        try{
+            UserCredentials.findAll().then((promise: any) => {
+                res.status(200).json(promise)
+            })
+        }catch(e : any){
+            return e
+        }
 
     
     }
