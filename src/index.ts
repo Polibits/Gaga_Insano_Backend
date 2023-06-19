@@ -11,7 +11,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
     
-app.use('/user' , userRoutes)
+app.use('/' , userRoutes)
 
 /* Conexão Sync */ 
 const force = false; // forçar alteração no banco de dados
