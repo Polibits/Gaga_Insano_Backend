@@ -95,10 +95,20 @@ export default class UserController {
     }
 
 
+    static async deleteUser(req: Request, res: Response){
+        const id = req.body.id;
+        try{
+          await UserCredentials.destroy({where: {Id: id}})
+          res.send({message: "Operação Delete deu certo!"})
+        }catch(e:any){
+          console.log(e)
+          res.send( {message:"Operação Delete não deu certo"} )}
+      }
+
+    }
 
 
 
 
 
 
-}

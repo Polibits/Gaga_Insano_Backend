@@ -16,7 +16,7 @@ router.post('/user/login' , UserController.loginUser)
 // router.post('/user/update/activate', UserController.activateAccount)
 
 /* rotas de deleção */
-// router.post('/user/delete', UserController.deleteUser)
+ router.post('/user/delete', UserController.deleteUser)
 
 /* rotas de leitura */
  router.get('/user/read/info/all', UserController.getAllUsersInfo)
