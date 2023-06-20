@@ -5,7 +5,7 @@ import Auth from "../auth/auth";
 /**
  * Define modelo das credenciais do usuário, no banco de dados
  */
-export const UserCredentials = sequelize.define('userCredentials', {
+export const UserInfo = sequelize.define('UserInfo', {
     userID: {
         type: Sequelize.STRING,
         allowNull: false,

@@ -5,6 +5,7 @@ import validationsUser from '../validations/validationsUser'
 import Auth from '../auth/auth';
 import UserUtil from '../utils/UserUtil';
 import { UserCredentialsAttributes } from '../Interfaces/InterfaceUserCred';
+import { UserInfo } from '../modelsDB/UserInfo'
 
 const saltLenght = 128;
 
@@ -84,7 +85,7 @@ export default class UserController {
 
     static async getAllUsersInfo(req: Request, res: Response){
         try{
-            UserCredentials.findAll().then((promise: any) => {
+            UserInfo.findAll().then((promise: any) => {
                 res.status(200).json(promise)
             })
         }catch(e : any){
