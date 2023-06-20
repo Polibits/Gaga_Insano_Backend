@@ -6,7 +6,9 @@ import Auth from '../auth/auth';
 import UserUtil from '../utils/UserUtil';
 import { UserCredentialsAttributes } from '../Interfaces/InterfaceUserCred';
 import { UserInfo } from '../modelsDB/UserInfo'
-
+import { BlockedUsers } from '../modelsDB/BlockedUsers';
+import { BlockedUserAttributes } from '../Interfaces/interfaceBlockedUser';
+import { BlockedUsersClass } from '../models/BlockedUsersClass';
 const saltLenght = 128;
 
 export default class UserController {
@@ -20,11 +22,10 @@ export default class UserController {
         const name: string = req.body.name
         const email: string = req.body.email
         const password: string = req.body.password
-        const username: string = req.body.username
         const confirmpassword: string = req.body.confirmpassword
         //const { name, email,  username, confirmpassword , password} = req.body
 
-        const validation = validationsUser.RegisterValidation(name, email, username, password, confirmpassword)
+        const validation = validationsUser.RegisterValidation(name, email,  password, confirmpassword)
 
         if (validation.length !== 0) {
             return res.status(501).json({ message: validation })
@@ -37,7 +38,6 @@ export default class UserController {
         const AccountCreated = {
             name: name,
             email: SHAemail,
-            username: username,
             salt: salt,
             password: SHAPass,
         }
@@ -105,6 +105,23 @@ export default class UserController {
           console.log(e)
           res.send( {message:"Operação Delete não deu certo"} )}
       }
+
+
+    static async blockUser(req: Request, res: Response){
+        const ipAddress : string = req.ip;
+        const user_id :string = req.body.id
+
+        const blockeduser = new BlockedUsersClass(ipAddress , user_id)
+
+        try{
+            await BlockedUsers.save(blockeduser)
+            console.log("Usuário Bloqueado")
+        }catch(e : any){
+            console.log(e)
+        }
+
+    }
+
 
     }
 
