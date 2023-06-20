@@ -3,8 +3,6 @@ import Sequelize, { Model } from "sequelize";
 import { UserCredentials } from '../modelsDB/UserCredentials';
 import { UserInfo } from '../modelsDB/UserInfo'
 import { BlockedUsers } from '../modelsDB/BlockedUsers';
-import { BlockedUserAttributes } from '../Interfaces/interfaceBlockedUser';
-import { BlockedUsersClass } from '../models/BlockedUsersClass';
 import { Credentials } from '../models/Credentials';
 import { Message, MessageCode } from '../routes/messages';
 const saltLenght = 128;
@@ -92,7 +90,7 @@ export default class UserController {
 
     /**
      * Deleta credenciais do usuário da base de dados
-     * @param req 
+     * @param req {email:"email"}
      * @param res 
      */
     public static async deleteUserCredentials(req: Request, res: Response) {
@@ -106,33 +104,145 @@ export default class UserController {
                     hashedEmail:hashedEmail
                 }
             })
+            // TODO implementar
         } catch (error) {
             /* falha ao deletar */
+            // TODO implementar
         }
     }
 
-    static async getAllUsersInfo(req: Request, res: Response){
-        try{
-            UserInfo.findAll().then((promise: any) => {
-                res.status(200).json(promise)
-            })
-        }catch(e : any){
-            return e
-        }
+    /**
+     * Redefine as credenciais de usuário
+     * @param req 
+     * @param res 
+     */
+    public static async updateCredentials(req: Request, res: Response) {
+        // TODO implementar
     }
 
+    /**
+     * Verifica se as credenciais de um usuário estão presentes na database
+     * @param req 
+     * @param res 
+     * @param Response 
+     */
+    public static async CredentialsExistsInDB(req: Request, res: Response) {
+        // TODO implementar
+    }
+
+    /**
+     * Registra no banco de dados as informações do usuário
+     * @param req 
+     * @param res 
+     */
+    static async registerUserInfo(req: Request, res: Response) {
+        
+    }
+
+    /**
+     * Obtém as informações de um usuário em particular
+     * @param req 
+     * @param res 
+     */
+    static async getUserInfo(req: Request, res: Response) {
+        
+    }
+
+    /**
+     * Obtém as informações de todos os usuários da base da dados
+     * @param req 
+     * @param res 
+     * @returns 
+     */
+        static async getAllUsersInfo(req: Request, res: Response){
+            try{
+                UserInfo.findAll().then((promise: any) => {
+                    res.status(200).json(promise)
+                })
+            }catch(error: any){
+                
+            }
+        }
+
+    /**
+     * Atualiza as informações do usuário
+     * @param req 
+     * @param res 
+     */
+    static async updateUserInfo(req: Request, res: Response) {
+        
+    }
+
+    /**
+     * Deleta as informações do usuário da base de dados
+     * @param req 
+     * @param res 
+     */
+    static async deleteUserInfo(req: Request, res: Response) {
+        
+    }
+
+    /**
+     * Bloqueia usuário na base de dados
+     * @param req 
+     * @param res 
+     */
     static async blockUser(req: Request, res: Response){
-        const ipAddress : string = req.ip;
-        const user_id :string = req.body.id
+        const IP: string = req.ip
+        const userID: string = req.body.userID
+        const CPF: string = req.body.CPF
+        const email: string = req.body.email
 
-        const blockeduser = new BlockedUsersClass(ipAddress , user_id)
+        const blockedUser = {
+            IP: IP,
+            userID: userID,
+            CPF: CPF,
+            email: email
+        }
 
         try{
-            await BlockedUsers.save(blockeduser)
-            console.log("Usuário Bloqueado")
-        }catch(e : any){
-            console.log(e)
+            /* bloqueio do usuário */
+            await BlockedUsers.save(blockedUser)
+            // TODO implementar
+        }catch(error: any){
+            /* falha ao bloquear usuário */
+            // TODO implementar
         }
+    }
+
+    /**
+     * Desbloqueia usuário na base de dados
+     * @param req 
+     * @param res 
+     */
+    static async unblockUser(req: Request, res: Response){
+        const IP: string = req.ip
+        const userID: string = req.body.userID
+        const CPF: string = req.body.CPF
+        const email: string = req.body.email
+
+        const blockedUser = {
+            IP: IP,
+            userID: userID,
+            CPF: CPF,
+            email: email
+        }
+
+        try{
+            /* desbloqueio do usuário */
+            // TODO implementar
+        }catch(error: any){
+            /* falha ao desbloquear usuário */
+            // TODO implementar
+        }
+    }
+
+    /**
+     * Obtém lista de todos os usuários bloqueados
+     * @param req 
+     * @param res 
+     */
+    static async getBlockedUsers(req: Request, res: Response) {
 
     }
 }
