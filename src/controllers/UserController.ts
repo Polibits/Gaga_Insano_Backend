@@ -27,8 +27,8 @@ export default class UserController {
             /* credenciais válidas */
             try {
                 var creds = {
-                    email: userCredentials.getHashedEmail(),
-                    password: userCredentials.getHashedPassword(),
+                    hashedEmail: userCredentials.getHashedEmail(),
+                    hashedPassword: userCredentials.getHashedPassword(),
                     salt: userCredentials.getSalt()
                 }
 
@@ -63,7 +63,7 @@ export default class UserController {
             /* busca pelo usuário na base de dados */
             const user = UserCredentials.findOne({
                 where: {
-                    email: hashedEmail
+                    hashedEmail: hashedEmail
                 }
             })
 
@@ -72,8 +72,8 @@ export default class UserController {
             } else {
                 /* validar credenciais */
                 const userCredentialsInDB = new Credentials(
-                    user.email,
-                    user.password,
+                    user.hashedEmail,
+                    user.hashedPassword,
                     user.salt
                 )
                 const salt = user.salt
@@ -103,7 +103,7 @@ export default class UserController {
             /* deleção das credenciais */
             UserCredentials.destroy({
                 where: {
-                    email:hashedEmail
+                    hashedEmail:hashedEmail
                 }
             })
         } catch (error) {
