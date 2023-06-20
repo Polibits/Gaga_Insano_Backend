@@ -11,9 +11,18 @@ export const BlockedUsers = sequelize.define('BlockedUsers', {
         allowNull: false,
         unique: true,
     },
-    ip: {
+    IP: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true
-    }
+    },
+    CPF: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+    },
 });

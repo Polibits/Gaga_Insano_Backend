@@ -11,29 +11,37 @@ export const UserInfo = sequelize.define('UserInfo', {
         allowNull: false,
         unique: true,
     },
-    description: {
+    userType: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    username: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    fullname: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    CPF: {
+        type: Sequelize.STRING,
+        allowNull: false
+    },
+    email: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
+    },
+    birthday: {
         type: Sequelize.STRING,
         allowNull: true,
         unique: false
     },
-    age: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        unique: true
-    },
-    genero: {
+    gender: {
         type: Sequelize.STRING,
         allowNull: true
     },
     phone: {
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    username: {
-        type: Sequelize.STRING,
-        allowNull: true
-    },
-    socialName: {
         type: Sequelize.STRING,
         allowNull: true
     }
