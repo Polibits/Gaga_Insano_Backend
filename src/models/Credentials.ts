@@ -34,6 +34,10 @@ class Credentials {
         this.hashedPassword = this.hash(password + this.salt)
     }
 
+    public setEmail(email:string) {
+        this.hashedEmail = this.hash(email)
+    }
+
     /**
      * Obtém o email, pós hash
      * @returns 
@@ -59,20 +63,20 @@ class Credentials {
     }
 
     /**
-     * Verifica a validade de um conjunto email, senha e sal
+     * Autentica as credenciais, isto é, verifica se o email e a senha informados são de fato da conta
      * @param email email informado
      * @param password senha informada
      * @param salt sal informado
      * @returns validade da credencial
      */
-    public validCredentials(email:string, password:string, salt:string) {
+    public authenticateCredentials(email:string, password:string, salt:string) {
         var sucess = false
 
         /* validação de email */
         if(this.hash(email) == this.hashedEmail) {
             /* validação de senha */
             if(this.hash(password + salt) == this.hashedPassword) {
-                sucess = true;
+                sucess = true
             }
         }
 
@@ -80,10 +84,22 @@ class Credentials {
     }
 
     /**
+     * Verifica se uma credencial é válida; ou seja, se cumpre regras pré-estabelecidas de formato e segurança
+     * @param email email
+     * @param password senha
+     * @returns verdadeiro, 
+     */
+    public static validCredentials(email: string, password:string) {
+        var sucess = false
+        // TODO implementar
+        return sucess
+    }
+
+    /**
      * Gera um sal aleatório
      * @returns uma string aleatória hexadecimal (de 128 caracteres por padrão)
      */
-    private newSalt() {
+    public newSalt() {
         return crypto
             .randomBytes(Math.ceil(SALT_LENGHT/2))
             .toString("hex")
@@ -95,10 +111,17 @@ class Credentials {
      * @param input uma entrada qualquer, para passar pelo hash
      * @returns hash da entrada (sha-256 por padrão)
      */
-    private hash(input:string) {
+    public hash(input:string) {
         return crypto
             .createHash(DEFAULT_HASH)
             .update(input)
+            .digest("hex")
+    }
+
+    public static hashedEmail(email:string) {
+        return crypto
+            .createHash(DEFAULT_HASH)
+            .update(email)
             .digest("hex")
     }
 }

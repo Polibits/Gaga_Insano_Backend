@@ -1,87 +1,115 @@
 import { Request, Response } from 'express'
 import Sequelize, { Model } from "sequelize";
 import { UserCredentials } from '../modelsDB/UserCredentials';
-import validationsUser from '../validations/validationsUser'
-import Auth from '../auth/auth';
-import UserUtil from '../utils/UserUtil';
-import { UserCredentialsAttributes } from '../Interfaces/InterfaceUserCred';
 import { UserInfo } from '../modelsDB/UserInfo'
 import { BlockedUsers } from '../modelsDB/BlockedUsers';
 import { BlockedUserAttributes } from '../Interfaces/interfaceBlockedUser';
 import { BlockedUsersClass } from '../models/BlockedUsersClass';
+import { Credentials } from '../models/Credentials';
+import { Message, MessageCode } from '../routes/messages';
 const saltLenght = 128;
 
 export default class UserController {
     /**
-     * TODO
-     * @param req 
+     * Registra credenciais do usuário na base de dados
+     * @param req {email:"email", password:"password"}
      * @param res 
-     * @returns 
      */
-    static async createUser(req: Request, res: Response) {
-        const name: string = req.body.name
+    static async registerCredentials(req: Request, res: Response) {
+        var sucess = false
         const email: string = req.body.email
         const password: string = req.body.password
-        const confirmpassword: string = req.body.confirmpassword
-        //const { name, email,  username, confirmpassword , password} = req.body
 
-        const validation = validationsUser.RegisterValidation(name, email,  password, confirmpassword)
+        var userCredentials = new Credentials("", "", "")
+        userCredentials.generateCredentials(email, password)
 
-        if (validation.length !== 0) {
-            return res.status(501).json({ message: validation })
+        if(Credentials.validCredentials(email, password)){
+            /* credenciais válidas */
+            try {
+                var creds = {
+                    email: userCredentials.getHashedEmail(),
+                    password: userCredentials.getHashedPassword(),
+                    salt: userCredentials.getSalt()
+                }
+
+                /* registro no banco de dados */
+                const save = await UserCredentials.create(creds)
+                
+                sucess = true
+            } catch (error) {
+                sucess = false
+            }
+        } else {
+            /* credenciais inválidas */
+            sucess = false
         }
+        
+        res.send({
+            sucess:sucess
+        })
+    }
 
-        const salt = Auth.new_salt(saltLenght)
-        const SHAPass = Auth.sha256(password + salt)
-        const SHAemail = Auth.sha256(email)
-
-        const AccountCreated = {
-            name: name,
-            email: SHAemail,
-            salt: salt,
-            password: SHAPass,
-        }
+    /**
+     * Verifica se as credenciais de um usuário são compatíveis com o que está na base de dados
+     * @param req {email:"email", password:"password"}
+     * @param res 
+     */
+    static async authenticateCredentials(req: Request, res: Response) {
+        const email: string = req.body.email
+        const password: string = req.body.password
+        const hashedEmail = Credentials.hashedEmail(email)
 
         try {
-            const save = await UserCredentials.create(AccountCreated);
-            res.status(200).json({ message: "Deu certo" })
-        } catch (error: any) {
-            res.status(500).json({ message: error })
-        }
-    }
+            /* busca pelo usuário na base de dados */
+            const user = UserCredentials.findOne({
+                where: {
+                    email: hashedEmail
+                }
+            })
 
-
-    static async loginUser(req: Request, res: Response) {
-        const email: string = req.body.email
-        const password: string = req.body.password
-
-        if (!email && !password) {
-            res.status(422).json({ message: 'O e-mail/ senha é obrigatório!' })
-            return
-        }
-
-        const SHAemail = Auth.sha256(email)
-        UserUtil.findByEmail(SHAemail).then(promise => {
-            if (!promise) {
-                res.status(422).json({ message: 'O e-mail não foi encontrado' })
+            if(!user){
+                /* credenciais inexistentes */
             } else {
-                const salt = promise.salt;
-                const SHAPass = Auth.sha256(password + salt)
-                const SHAemail = Auth.sha256(email)
-                if (SHAemail == promise.email) {
-                    if (SHAPass == promise.password) {
-                        res.status(200).json({ message: 'Usuário Logado' })
-                    } else {
-                        res.status(422).json({ message: 'Senha Incorreta' })
-                    }
+                /* validar credenciais */
+                const userCredentialsInDB = new Credentials(
+                    user.email,
+                    user.password,
+                    user.salt
+                )
+                const salt = user.salt
+
+                if(userCredentialsInDB.authenticateCredentials(email, password, salt)){
+                    /* credenciais válidas */
                 } else {
-                    res.status(422).json({ message: 'O e-mail incorreto' })
+                    /* credenciais inválidas */
                 }
             }
-        })
-
+            
+        } catch (error) {
+            /* falha ao procurar usuário */
+        }
     }
 
+    /**
+     * Deleta credenciais do usuário da base de dados
+     * @param req 
+     * @param res 
+     */
+    public static async deleteUserCredentials(req: Request, res: Response) {
+        const email: string = req.body.email
+        const hashedEmail: string = Credentials.hashedEmail(email)
+
+        try {
+            /* deleção das credenciais */
+            UserCredentials.destroy({
+                where: {
+                    email:hashedEmail
+                }
+            })
+        } catch (error) {
+            /* falha ao deletar */
+        }
+    }
 
     static async getAllUsersInfo(req: Request, res: Response){
         try{
@@ -91,21 +119,7 @@ export default class UserController {
         }catch(e : any){
             return e
         }
-
-    
     }
-
-
-    static async deleteUser(req: Request, res: Response){
-        const id = req.body.id;
-        try{
-          await UserCredentials.destroy({where: {Id: id}})
-          res.send({message: "Operação Delete deu certo!"})
-        }catch(e:any){
-          console.log(e)
-          res.send( {message:"Operação Delete não deu certo"} )}
-      }
-
 
     static async blockUser(req: Request, res: Response){
         const ipAddress : string = req.ip;
@@ -121,12 +135,4 @@ export default class UserController {
         }
 
     }
-
-
-    }
-
-
-
-
-
-
+}
