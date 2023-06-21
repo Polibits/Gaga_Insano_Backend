@@ -1,12 +1,7 @@
-import crypto from 'crypto'
-
-const SALT_LENGHT = 128;
-const DEFAULT_HASH = "sha256"
-
 /**
  * Classe de Credencial do Usuário
  */
-export class BlockedUsersClass {
+export class BlockedUser {
 
     private ip : string
     private id : string
