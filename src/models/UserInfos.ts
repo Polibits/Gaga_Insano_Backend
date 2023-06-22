@@ -1,4 +1,5 @@
-
+import { UserInfo } from '../modelsDB/UserInfo'
+import { User } from './User'
 
 export class UserInfos{
     private userID : string | undefined 
@@ -8,6 +9,21 @@ export class UserInfos{
     private phone : string | undefined 
     private username : string | undefined 
     private socialName : string | undefined 
+
+    public static async  getUserInfoByID( userID : string){
+      const user : UserInfos = await UserInfo.find({where: { userID : userID}})
+      return user
+    }
+
+    public static async deleteUserInfoByID( userID : string){
+      try{
+        await UserInfo.delete({where:{userID : userID}})
+      }catch(e:any){
+        console.log(e)
+      }
+    }
+
+    
 
     public getUserID(): string | undefined {
         return this.userID;
@@ -64,6 +80,8 @@ export class UserInfos{
       public setSocialName(socialName: string): void {
         this.socialName = socialName;
       }
+
+      
 
 
 

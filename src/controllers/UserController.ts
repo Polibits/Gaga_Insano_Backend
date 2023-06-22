@@ -5,6 +5,8 @@ import { UserInfo } from '../modelsDB/UserInfo'
 import { BlockedUsers } from '../modelsDB/BlockedUsers';
 import { Credentials } from '../models/Credentials';
 import { Message, MessageCode } from '../routes/messages';
+import { UserInfos } from '../models/UserInfos';
+import { userInfo } from 'os';
 const saltLenght = 128;
 
 export default class UserController {
@@ -13,6 +15,7 @@ export default class UserController {
      * @param req {email:"email", password:"password"}
      * @param res 
      */
+    
     static async registerCredentials(req: Request, res: Response) {
         var sucess = false
         const email: string = req.body.email
@@ -46,6 +49,13 @@ export default class UserController {
             sucess:sucess
         })
     }
+
+     
+    
+
+
+
+
 
     /**
      * Verifica se as credenciais de um usuário são compatíveis com o que está na base de dados
@@ -130,12 +140,39 @@ export default class UserController {
         // TODO implementar
     }
 
-    /**
-     * Registra no banco de dados as informações do usuário
-     * @param req 
+   /**
+     * Cria um UserInfo
+     *  @param req {
+     *  private userID : string | undefined 
+        private description : string | undefined 
+        private age : string | undefined 
+        private genero : string | undefined 
+        private phone : string | undefined 
+        private username : string | undefined 
+        private socialName }
      * @param res 
      */
     static async registerUserInfo(req: Request, res: Response) {
+        try{
+            const userinfo = {
+                description : req.body.description,
+                age : req.body.age,
+                genero : req.body.genero,
+                phone : req.body.phone,
+                username : req.body.username,
+                socialName : req.body.socialName
+            }
+
+            try{
+                await UserInfo.save(userinfo)
+            }catch(e : any){
+                console.log(e)
+            }
+        }catch(e : any){
+            console.log(e)
+        }
+
+        
         
     }
 
@@ -145,6 +182,17 @@ export default class UserController {
      * @param res 
      */
     static async getUserInfo(req: Request, res: Response) {
+        const id :string = req.body.id
+
+        try{
+            const user = await UserInfos.getUserInfoByID(id)
+            return user
+            //TODO : necessário resolver a promise, recomendo fazer uma função em userInfos que pega o user
+            // e retorna cada user.getData e forma um JSON, isso resolveria a promise facilmente e sem problemas.
+        }catch(e : any){
+            console.log(e)
+        }
+
         
     }
 
@@ -169,7 +217,26 @@ export default class UserController {
      * @param req 
      * @param res 
      */
+    
     static async updateUserInfo(req: Request, res: Response) {
+        const userid = req.body.id
+        try{
+            const user = await UserInfos.getUserInfoByID(userid)
+            user.setAge(req.body.age)
+            user.setDescription(req.body.description)
+            user.setGenero(req.body.age)
+            user.setPhone(req.body.phone)
+            user.setSocialName(req.body.socialName)
+            user.setUsername(req.body.username)
+            try{
+                await UserInfo.save(user)
+            }catch(e : any){
+                console.log(e)
+            }
+            
+        }catch(e : any){
+            console.log(e)
+        }
         
     }
 
@@ -179,7 +246,8 @@ export default class UserController {
      * @param res 
      */
     static async deleteUserInfo(req: Request, res: Response) {
-        
+        const userid = req.body.id
+        await UserInfos.deleteUserInfoByID(userid)
     }
 
     /**
@@ -243,6 +311,11 @@ export default class UserController {
      * @param res 
      */
     static async getBlockedUsers(req: Request, res: Response) {
+        try{
+            return await BlockedUsers.findAll();
+        }catch(e : any){
+            console.log(e)
+        }
 
     }
 }
