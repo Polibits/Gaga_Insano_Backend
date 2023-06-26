@@ -127,7 +127,21 @@ export default class UserController {
      * @param res 
      */
     public static async updateCredentials(req: Request, res: Response) {
-        // TODO implementar
+        const email: string = req.body.email
+        const hashedEmail: string = Credentials.hashedEmail(email)
+        const hashedPassword : string = req.body.password
+
+        const user = {
+            hashedEmail : hashedEmail,
+            hashedPassword
+        }
+
+        try{
+            await UserCredentials.update(user, {where: {hashedEmail: hashedEmail}});
+        }catch(e : any){
+
+        }
+        
     }
 
     /**
@@ -137,7 +151,25 @@ export default class UserController {
      * @param Response 
      */
     public static async CredentialsExistsInDB(req: Request, res: Response) {
-        // TODO implementar
+        const email: string = req.body.email
+        const hashedEmail: string = Credentials.hashedEmail(email)
+
+        try {
+            /* deleção das credenciais */
+            const user = UserCredentials.find({
+                where: {
+                    hashedEmail:hashedEmail
+                }
+            })
+            if(user != null){
+                return true
+            }else{
+                return false
+            }
+        } catch (error) {
+            /* falha ao deletar */
+            // TODO implementar
+        }
     }
 
    /**
