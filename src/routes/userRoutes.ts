@@ -2,13 +2,13 @@ import express from 'express'
 const router = express.Router();
 import UserController from '../controllers/UserController';
 
-router.post('/user/create' , UserController.createUser);
-router.post('/user/login' , UserController.loginUser)
+router.post('/user/cred/create' , UserController.registerCredentials);
+router.post('/user/login' , UserController.authenticateCredentials)
 
 /* rotas de criação */
 // router.post('/user/create/default', UserController.createStudent)
 // router.post('/user/create/adm', UserController.createADM)
-// router.post('/user/create/tech', UserController.createTech)
+ router.post('/user/info/create', UserController.registerUserInfo)
 
 /* rotas de atualização */
 // router.post('/user/update/info', UserController.updateInfo)
@@ -16,7 +16,7 @@ router.post('/user/login' , UserController.loginUser)
 // router.post('/user/update/activate', UserController.activateAccount)
 
 /* rotas de deleção */
- router.post('/user/delete', UserController.deleteUser)
+ router.post('/user/delete', UserController.deleteUserCredentials)
 
 /* rotas de leitura */
  router.get('/user/read/info/all', UserController.getAllUsersInfo)

@@ -108,6 +108,11 @@ class MessageCode {
         this.code = code
     }
 
+
+    
+
+
+
     /**
      * Obtém o código
      * @returns código da mensagem

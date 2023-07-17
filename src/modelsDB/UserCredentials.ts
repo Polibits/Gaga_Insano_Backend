@@ -5,6 +5,7 @@ import sequelize from '../db/conn';
  * Define modelo das credenciais do usuário, no banco de dados
  */
 export const UserCredentials = sequelize.define('userCredentials', {
+    
     hashedEmail: {
         type: Sequelize.STRING,
         allowNull: false,

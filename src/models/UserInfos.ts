@@ -1,14 +1,17 @@
+import { DataType } from 'sequelize'
 import { UserInfo } from '../modelsDB/UserInfo'
 import { User } from './User'
-
+import crypto from 'crypto';
 export class UserInfos{
     private userID : string | undefined 
     private description : string | undefined 
     private age : string | undefined 
-    private genero : string | undefined 
+    private gender : string | undefined 
     private phone : string | undefined 
     private username : string | undefined 
     private socialName : string | undefined 
+    private cpf : string | undefined
+    private birthday : DataType | undefined
 
     public static async  getUserInfoByID( userID : string){
       const user : UserInfos = await UserInfo.find({where: { userID : userID}})
@@ -22,6 +25,17 @@ export class UserInfos{
         console.log(e)
       }
     }
+
+    
+
+    public static generateRandomId(): string {
+      const idLength = 10;
+      const randomBytes = crypto.randomBytes(idLength);
+      const randomId = randomBytes.toString('hex');
+    
+      return randomId;
+    }
+    
 
     
 
@@ -50,11 +64,11 @@ export class UserInfos{
       }
     
       public getGenero(): string | undefined {
-        return this.genero;
+        return this.gender;
       }
     
       public setGenero(genero: string): void {
-        this.genero = genero;
+        this.gender = genero;
       }
     
       public getPhone(): string | undefined {

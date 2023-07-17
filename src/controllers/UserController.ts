@@ -7,9 +7,19 @@ import { Credentials } from '../models/Credentials';
 import { Message, MessageCode } from '../routes/messages';
 import { UserInfos } from '../models/UserInfos';
 import { userInfo } from 'os';
+import { MessageCodeEnum } from '../enums/errorMessages';
 const saltLenght = 128;
 
 export default class UserController {
+    static deleteUser(arg0: string, deleteUser: any) {
+        throw new Error('Method not implemented.');
+    }
+    static createUser(arg0: string, createUser: any) {
+        throw new Error('Method not implemented.');
+    }
+    static loginUser(arg0: string, loginUser: any) {
+        throw new Error('Method not implemented.');
+    }
     /**
      * Registra credenciais do usuário na base de dados
      * @param req {email:"email", password:"password"}
@@ -20,10 +30,10 @@ export default class UserController {
         var sucess = false
         const email: string = req.body.email
         const password: string = req.body.password
-
-        var userCredentials = new Credentials("", "", "")
+    
+        const userCredentials = new Credentials("", "", "")
         userCredentials.generateCredentials(email, password)
-
+        
         if(Credentials.validCredentials(email, password)){
             /* credenciais válidas */
             try {
@@ -32,10 +42,11 @@ export default class UserController {
                     hashedPassword: userCredentials.getHashedPassword(),
                     salt: userCredentials.getSalt()
                 }
+                console.log(creds)
 
                 /* registro no banco de dados */
                 const save = await UserCredentials.create(creds)
-                
+                console.log(save)
                 sucess = true
             } catch (error) {
                 sucess = false
@@ -44,10 +55,38 @@ export default class UserController {
             /* credenciais inválidas */
             sucess = false
         }
+
+        try{   
+            const UserIDCode = UserInfos.generateRandomId
+            console.log(UserIDCode)
+            const stringofID = UserIDCode.toString()
+            const userinfo = {
+                userID: stringofID,
+                description : null,
+                age : null,
+                gender : null,
+                phone : null,
+                username : null,
+                socialName : null,
+                cpf : null,
+                birthday: null,
+            }
+
+            try{
+                await UserInfo.create(userinfo)
+                res.send({response:{
+                    status:200,
+                    about: "UserInfo é Criado",
+                    message: MessageCodeEnum.SUCESS
+                }})
+            }catch(e : any){
+                console.log(e)
+            }
+        }catch(e : any){
+            console.log(e)
+        }
         
-        res.send({
-            sucess:sucess
-        })
+    
     }
 
      
@@ -185,18 +224,27 @@ export default class UserController {
      * @param res 
      */
     static async registerUserInfo(req: Request, res: Response) {
-        try{
+        try{   
+            
+            const userId = req.body.userID;
             const userinfo = {
                 description : req.body.description,
                 age : req.body.age,
-                genero : req.body.genero,
+                gender : req.body.gender,
                 phone : req.body.phone,
                 username : req.body.username,
-                socialName : req.body.socialName
+                socialName : req.body.socialName,
+                cpf : req.body.cpf,
+                birthday: req.body.birthday
             }
 
             try{
-                await UserInfo.save(userinfo)
+                await UserInfo.update(userinfo, {where:{userID:userId}})
+                res.send({response:{
+                    status:200,
+                    about: "UserInfo é atualizado/Criado",
+                    message: MessageCodeEnum.SUCESS
+                }})
             }catch(e : any){
                 console.log(e)
             }

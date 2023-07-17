@@ -13,23 +13,20 @@ export const UserInfo = sequelize.define('UserInfo', {
     },
     userType: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
     },
     username: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
     },
     fullname: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: true
     },
-    CPF: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
+    
     email: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true
     },
     birthday: {
@@ -44,5 +41,10 @@ export const UserInfo = sequelize.define('UserInfo', {
     phone: {
         type: Sequelize.STRING,
         allowNull: true
-    }
+    },
+    cpf: {
+        type: Sequelize.STRING,
+        allowNull: true
+    },
+    
 });
