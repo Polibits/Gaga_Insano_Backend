@@ -14,7 +14,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/' , userRoutes)
 
 /* Conexão Sync */ 
-const force =true; // forçar alteração no banco de dados
+const force =false; // forçar alteração no banco de dados
 conn.sync({ force: force})
 .then( ()=> {
     console.log('server rodando na porta: ', port);

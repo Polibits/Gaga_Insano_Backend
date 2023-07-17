@@ -63,11 +63,11 @@ export class UserInfos{
         this.age = age;
       }
     
-      public getGenero(): string | undefined {
+      public getGender(): string | undefined {
         return this.gender;
       }
     
-      public setGenero(genero: string): void {
+      public setGender(genero: string): void {
         this.gender = genero;
       }
     
@@ -95,6 +95,23 @@ export class UserInfos{
         this.socialName = socialName;
       }
 
+      // Getter e Setter para a propriedade cpf
+      public getCpf(): string | undefined {
+        return this.cpf;
+      }
+
+      public setCpf(value: string | undefined) {
+        this.cpf = value;
+      }
+
+      // Getter e Setter para a propriedade birthday
+      public getBirthday(): DataType | undefined {
+        return this.birthday;
+      }
+
+      public setBirthday(value: DataType | undefined) {
+        this.birthday = value;
+      }
       
 
 

@@ -34,6 +34,8 @@ class Credentials {
         this.hashedPassword = this.hash(password + this.salt)
     }
 
+    
+
     public setEmail(email:string) {
         this.hashedEmail = this.hash(email)
     }
