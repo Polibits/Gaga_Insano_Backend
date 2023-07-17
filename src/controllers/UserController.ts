@@ -106,6 +106,7 @@ export default class UserController {
         where: {
           hashedEmail: hashedEmail,
         },
+        
       });
       
 
@@ -118,37 +119,46 @@ export default class UserController {
             },
           });
       } else {
-        
-        const userCredentialsInDB = new Credentials(
-          user.hashedEmail,
-          user.hashedPassword,
-          user.salt
-        );
-        const salt = user.salt;
+        console.log(user.hashedEmail)
+        user.then((user : any)  => {
+            const userCredentialsInDB = new Credentials(
+                user.hashedEmail,
+                user.hashedPassword,
+                user.salt
+              );
+              
+              const salt = user.salt;  
 
-        if (
-          userCredentialsInDB.authenticateCredentials(email, password, salt)
-        ) {
-            res.send({
-                response: {
-                  status: 200,
-                  about: "USUÁRIO LOGADO",
-                  message: MessageCodeEnum.SUCESS,
-                },
-              });
-        } else {
-            res.send({
-                response: {
-                  status: 500,
-                  about: "Credenciais Erradas",
-                  message: MessageCodeEnum.USER_NOT_FOUND
-                },
-              });
-        }
+              if (
+                
+                userCredentialsInDB.authenticateCredentials(email, password, salt)
+              ) {
+                  res.send({
+                      response: {
+                        status: 200,
+                        about: "USUÁRIO LOGADO",
+                        message: MessageCodeEnum.SUCESS,
+                      },
+                    });
+              } else {
+                  res.send({
+                      response: {
+                        status: 500,
+                        about: "Credenciais Erradas",
+                        message: MessageCodeEnum.USER_NOT_FOUND
+                      },
+                    });
+              }
+        })
+        
       }
-    } catch (error) {
-      /* falha ao procurar usuário */
+
+    }catch(e: any){
+        console.log(e)
     }
+
+
+
   }
 
   /**
