@@ -368,10 +368,22 @@ export default class UserController {
     try {
       /* bloqueio do usuário */
       await BlockedUsers.save(blockedUser);
+      res.send({
+        response: {
+          status: 200,
+          about: "User " + CPF + " foi bloqueado",
+          message: MessageCodeEnum.SUCESS,
+        },
+      });
       // TODO implementar
     } catch (error: any) {
-      /* falha ao bloquear usuário */
-      // TODO implementar
+      res.send({
+        response: {
+          status: 200,
+          about: error,
+          message: MessageCodeEnum.SUCESS,
+        },
+      });
     }
   }
 

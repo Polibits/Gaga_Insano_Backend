@@ -23,7 +23,7 @@ router.post('/user/login' , UserController.authenticateCredentials)
 // router.get('/user/read/info/one', UserController.getUserInfo)
 
 /* rotas de bloqueio */
-// router.post('/user/block/newblock', UserController.blockUser)
+ router.post('/user/block/newblock', UserController.blockUser)
 // router.post('/user/block/unblock', UserController.unblockUser)
 // router.post('/user/block/status', UserController.isBlocked)
 
