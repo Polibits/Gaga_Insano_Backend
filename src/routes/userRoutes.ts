@@ -24,7 +24,7 @@ router.post('/user/login' , UserController.authenticateCredentials)
 
 /* rotas de bloqueio */
  router.post('/user/block/newblock', UserController.blockUser)
-// router.post('/user/block/unblock', UserController.unblockUser)
+ router.post('/user/block/unblock', UserController.unblockUser)
 // router.post('/user/block/status', UserController.isBlocked)
 
 export default router;

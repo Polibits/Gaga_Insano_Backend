@@ -30,13 +30,10 @@ export default class UserController {
     var sucess = false;
     const email: string = req.body.email;
     const password: string = req.body.password;
-    console.log(email, password)
-
     const userCredentials = new Credentials("", "", "");
-    console.log("em baixo")
-    console.log(userCredentials.getHashedEmail())
+
     userCredentials.generateCredentials(email, password);
-    console.log("é pra aparecer algo")
+    
     
 
     
@@ -357,21 +354,22 @@ export default class UserController {
     const userID: string = req.body.userID;
     const CPF: string = req.body.CPF;
     const email: string = req.body.email;
-
+    console.log(IP,CPF)
     const blockedUser = {
-      IP: IP,
       userID: userID,
+      IP: IP,
       CPF: CPF,
       email: email,
     };
+    console.log(blockedUser)
 
     try {
-      /* bloqueio do usuário */
-      await BlockedUsers.save(blockedUser);
+      
+      await BlockedUsers.create(blockedUser);
       res.send({
         response: {
           status: 200,
-          about: "User " + CPF + " foi bloqueado",
+          about: "Usuário bloBloqueado com CPF : " + CPF,
           message: MessageCodeEnum.SUCESS,
         },
       });
@@ -379,7 +377,7 @@ export default class UserController {
     } catch (error: any) {
       res.send({
         response: {
-          status: 200,
+          status: 500,
           about: error,
           message: MessageCodeEnum.SUCESS,
         },
@@ -397,6 +395,7 @@ export default class UserController {
     const userID: string = req.body.userID;
     const CPF: string = req.body.CPF;
     const email: string = req.body.email;
+    
 
     const blockedUser = {
       IP: IP,
@@ -405,14 +404,33 @@ export default class UserController {
       email: email,
     };
 
-    try {
-      /* desbloqueio do usuário */
-      // TODO implementar
-    } catch (error: any) {
-      /* falha ao desbloquear usuário */
-      // TODO implementar
+   
+      try {
+        /* deleção das credenciais */
+        BlockedUsers.destroy({
+          where: {
+            CPF: CPF,
+          },
+        });
+        res.send({
+          response: {
+            status: 200,
+            about: "Usuário DesbloBloqueado com CPF : " + CPF,
+            message: MessageCodeEnum.SUCESS,
+          },
+        });
+      } catch (error) {
+        res.send({
+          response: {
+            status: 500,
+            about: error,
+            message: MessageCodeEnum.SUCESS,
+          },
+        });
+      }
     }
-  }
+  
+  
 
   /**
    * Obtém lista de todos os usuários bloqueados
