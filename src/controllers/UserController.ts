@@ -14,18 +14,20 @@ export default class UserController {
   static deleteUser(arg0: string, deleteUser: any) {
     throw new Error("Method not implemented.");
   }
+
   static createUser(arg0: string, createUser: any) {
     throw new Error("Method not implemented.");
   }
+
   static loginUser(arg0: string, loginUser: any) {
     throw new Error("Method not implemented.");
   }
+
   /**
    * Registra credenciais do usuário na base de dados
    * @param req {email:"email", password:"password"}
    * @param res
    */
-
   static async registerCredentials(req: Request, res: Response) {
     var sucess = false;
     const email: string = req.body.email;
@@ -33,57 +35,21 @@ export default class UserController {
     const userCredentials = new Credentials("", "", "");
 
     userCredentials.generateCredentials(email, password);
-    
-    
-
-    
-      /* credenciais válidas */
-      try {
-        var creds = {
-          hashedEmail: userCredentials.getHashedEmail(),
-          hashedPassword: userCredentials.getHashedPassword(),
-          salt: userCredentials.getSalt(),
-        };
-       
-
-        /* registro no banco de dados */
-        const save = await UserCredentials.create(creds);
-        sucess = true;
-      } catch (error) {
-        sucess = false;
-      }
-    
 
     try {
-      const UserIDCode = UserInfos.generateRandomId();
-      console.log(UserIDCode);
-      const stringofID = UserIDCode.toString();
-      const userinfo = {
-        userID: stringofID,
-        description: null,
-        age: null,
-        gender: null,
-        phone: null,
-        username: null,
-        socialName: null,
-        cpf: null,
-        birthday: null,
+      /* credenciais válidas */
+      var creds = {
+        hashedEmail: userCredentials.getHashedEmail(),
+        hashedPassword: userCredentials.getHashedPassword(),
+        salt: userCredentials.getSalt(),
       };
 
-      try {
-        await UserInfo.create(userinfo);
-        res.send({
-          response: {
-            status: 200,
-            about: "UserInfo é Criado",
-            message: MessageCodeEnum.SUCESS,
-          },
-        });
-      } catch (e: any) {
-        console.log(e);
-      }
-    } catch (e: any) {
-      console.log(e);
+      /* registro no banco de dados */
+      const save = await UserCredentials.create(creds);
+      sucess = true;
+    } catch (error) {
+      /* credenciais inválidas */
+      sucess = false;
     }
   }
 
@@ -99,63 +65,54 @@ export default class UserController {
 
     try {
       /* busca pelo usuário na base de dados */
-      const user = UserCredentials.findOne({
-        where: {
-          hashedEmail: hashedEmail,
-        },
-        
-      });
-      
+      const user = UserCredentials.findOne({where: { hashedEmail: hashedEmail }});
 
       if (!user) {
+        /* credencial não existe */
         res.send({
-            response: {
-              status: 500,
-              about: "Credenciais não encontradas",
-              message: MessageCodeEnum.FAIL,
-            },
-          });
+          response: {
+            status: 500,
+            about: "Credenciais não encontradas",
+            message: MessageCodeEnum.FAIL,
+          },
+        });
       } else {
-        console.log(user.hashedEmail)
-        user.then((user : any)  => {
-            const userCredentialsInDB = new Credentials(
-                user.hashedEmail,
-                user.hashedPassword,
-                user.salt
-              );
-              
-              const salt = user.salt;  
+        /* credencial existe */
+        user.then((user: any) => {
+          const userCredentialsInDB = new Credentials(
+            user.hashedEmail,
+            user.hashedPassword,
+            user.salt
+          );
 
-              if (
-                
-                userCredentialsInDB.authenticateCredentials(email, password, salt)
-              ) {
-                  res.send({
-                      response: {
-                        status: 200,
-                        about: "USUÁRIO LOGADO",
-                        message: MessageCodeEnum.SUCESS,
-                      },
-                    });
-              } else {
-                  res.send({
-                      response: {
-                        status: 500,
-                        about: "Credenciais Erradas",
-                        message: MessageCodeEnum.USER_NOT_FOUND
-                      },
-                    });
-              }
+          const salt = user.salt;
+
+          if (userCredentialsInDB.authenticateCredentials(email, password, salt)) {
+            /* credenciais válidas */
+            res.send({
+              response: {
+                status: 200,
+                about: "USUÁRIO LOGADO",
+                message: MessageCodeEnum.SUCESS,
+              },
+            });
+          } else {
+            /* credenciais inválidas */
+            res.send({
+              response: {
+                status: 500,
+                about: "Credenciais Erradas",
+                message: MessageCodeEnum.USER_NOT_FOUND
+              },
+            });
+          }
         })
-        
       }
 
-    }catch(e: any){
-        console.log(e)
+    } catch (e: any) {
+      /* falha ao buscar usuário */
+      console.log(e)
     }
-
-
-
   }
 
   /**
@@ -200,7 +157,7 @@ export default class UserController {
       await UserCredentials.update(user, {
         where: { hashedEmail: hashedEmail },
       });
-    } catch (e: any) {}
+    } catch (e: any) { }
   }
 
   /**
@@ -219,12 +176,13 @@ export default class UserController {
         where: {
           hashedEmail: hashedEmail,
         },
-      });
-      if (user != null) {
+      })
+
+      if (user != null)
         return true;
-      } else {
+      else
         return false;
-      }
+      
     } catch (error) {
       /* falha ao deletar */
       // TODO implementar
@@ -232,17 +190,17 @@ export default class UserController {
   }
 
   /**
-     * Cria um UserInfo
-     *  @param req {
-     *  private userID : string | undefined 
-        private description : string | undefined 
-        private age : string | undefined 
-        private genero : string | undefined 
-        private phone : string | undefined 
-        private username : string | undefined 
-        private socialName }
-     * @param res 
-     */
+   * Cria um UserInfo
+   * @param req {
+   * private userID : string | undefined 
+     private description : string | undefined 
+     private age : string | undefined 
+     private genero : string | undefined 
+     private phone : string | undefined 
+     private username : string | undefined 
+     private socialName }
+   * @param res 
+   */
   static async registerUserInfo(req: Request, res: Response) {
     try {
       const userId = req.body.userID;
@@ -303,7 +261,7 @@ export default class UserController {
       UserInfo.findAll().then((promise: any) => {
         res.status(200).json(promise);
       });
-    } catch (error: any) {}
+    } catch (error: any) { }
   }
 
   /**
@@ -354,17 +312,15 @@ export default class UserController {
     const userID: string = req.body.userID;
     const CPF: string = req.body.CPF;
     const email: string = req.body.email;
-    console.log(IP,CPF)
+
     const blockedUser = {
       userID: userID,
       IP: IP,
       CPF: CPF,
       email: email,
     };
-    console.log(blockedUser)
 
     try {
-      
       await BlockedUsers.create(blockedUser);
       res.send({
         response: {
@@ -372,7 +328,7 @@ export default class UserController {
           about: "Usuário bloBloqueado com CPF : " + CPF,
           message: MessageCodeEnum.SUCESS,
         },
-      });
+      })
       // TODO implementar
     } catch (error: any) {
       res.send({
@@ -395,7 +351,6 @@ export default class UserController {
     const userID: string = req.body.userID;
     const CPF: string = req.body.CPF;
     const email: string = req.body.email;
-    
 
     const blockedUser = {
       IP: IP,
@@ -404,33 +359,30 @@ export default class UserController {
       email: email,
     };
 
-   
-      try {
-        /* deleção das credenciais */
-        BlockedUsers.destroy({
-          where: {
-            CPF: CPF,
-          },
-        });
-        res.send({
-          response: {
-            status: 200,
-            about: "Usuário DesbloBloqueado com CPF : " + CPF,
-            message: MessageCodeEnum.SUCESS,
-          },
-        });
-      } catch (error) {
-        res.send({
-          response: {
-            status: 500,
-            about: error,
-            message: MessageCodeEnum.SUCESS,
-          },
-        });
-      }
+    try {
+      /* deleção das credenciais */
+      BlockedUsers.destroy({
+        where: {
+          CPF: CPF,
+        },
+      });
+      res.send({
+        response: {
+          status: 200,
+          about: "Usuário DesbloBloqueado com CPF : " + CPF,
+          message: MessageCodeEnum.SUCESS,
+        },
+      });
+    } catch (error) {
+      res.send({
+        response: {
+          status: 500,
+          about: error,
+          message: MessageCodeEnum.SUCESS,
+        },
+      });
     }
-  
-  
+  }
 
   /**
    * Obtém lista de todos os usuários bloqueados
