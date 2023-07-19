@@ -4,11 +4,9 @@ import { UserCredentials } from "../modelsDB/UserCredentials"
 import { UserInfo } from "../modelsDB/UserInfo"
 import { BlockedUsers } from "../modelsDB/BlockedUsers"
 import { Credentials } from "../models/Credentials"
-import { Message, MessageCode } from "../routes/messages"
+import { Message } from "../routes/messages"
 import { UserInfos } from "../models/UserInfos"
 import { userInfo } from "os"
-import { MessageCodeEnum } from "../enums/errorMessages"
-const saltLenght = 128
 
 export default class UserController {
   static deleteUser(arg0: string, deleteUser: any) {
@@ -26,7 +24,13 @@ export default class UserController {
   /**
    * Registra credenciais do usuário na base de dados
    * @param req {email:"email", password:"password"}
-   * @param res
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
   static async registerCredentials(req: Request, res: Response) {
     var email: string = req.body.email
@@ -78,7 +82,13 @@ export default class UserController {
   /**
    * Verifica se as credenciais de um usuário são compatíveis com o que está na base de dados
    * @param req {email:"email", password:"password"}
-   * @param res
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
   static async authenticateCredentials(req: Request, res: Response) {
     const email: string = req.body.email
@@ -146,7 +156,13 @@ export default class UserController {
   /**
    * Deleta credenciais do usuário da base de dados
    * @param req {email:"email"}
-   * @param res
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
   public static async deleteUserCredentials(req: Request, res: Response) {
     const email: string = req.body.email
@@ -178,7 +194,13 @@ export default class UserController {
   /**
    * Redefine as credenciais de usuário
    * @param req
-   * @param res
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
   public static async updateCredentials(req: Request, res: Response) {
     const email: string = req.body.email
@@ -187,11 +209,13 @@ export default class UserController {
 
     const user = {
       hashedEmail: hashedEmail,
-      hashedPassword,
+      hashedPassword
     }
 
     try {
       await UserCredentials.update(user, { where: { hashedEmail: hashedEmail } })
+
+      /* credenciais atualizadas com sucesso */
       res.send(Message.response(
         200,
         "SUCESS",
@@ -200,6 +224,7 @@ export default class UserController {
         null
       ))
     } catch (error) {
+      /* falha ao atualizar */
       res.send(Message.response(
         500,
         "SERVER_ERROR",
@@ -213,8 +238,13 @@ export default class UserController {
   /**
    * Verifica se as credenciais de um usuário estão presentes na database
    * @param req
-   * @param res
-   * @param Response
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
   public static async CredentialsExistsInDB(req: Request, res: Response) {
     const email: string = req.body.email
@@ -258,14 +288,21 @@ export default class UserController {
   /**
    * Cria um UserInfo
    * @param req {
-   * private userID : string | undefined 
-     private description : string | undefined 
-     private age : string | undefined 
-     private genero : string | undefined 
-     private phone : string | undefined 
-     private username : string | undefined 
-     private socialName }
-   * @param res 
+            userID: "userID", 
+            description: "description", 
+            age: "age", 
+            genero: "genero", 
+            phone: "phone", 
+            username: "username", 
+            socialName: "socialName"
+        }
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
   static async registerUserInfo(req: Request, res: Response) {
     try {
@@ -313,14 +350,20 @@ export default class UserController {
 
   /**
    * Obtém as informações de um usuário em particular
-   * @param req
-   * @param res
+   * @param req {userID: "userID"}
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
   static async getUserInfo(req: Request, res: Response) {
-    const id: string = req.body.id
+    const userID: string = req.body.userID
 
     try {
-      const user = await UserInfos.getUserInfoByID(id)
+      const user = await UserInfos.getUserInfoByID(userID)
       return user
       //TODO : necessário resolver a promise, recomendo fazer uma função em userInfos que pega o user
       // e retorna cada user.getData e forma um JSON, isso resolveria a promise facilmente e sem problemas.
@@ -332,10 +375,16 @@ export default class UserController {
   /**
    * Obtém as informações de todos os usuários da base da dados
    * @param req
-   * @param res
-   * @returns
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
   static async getAllUsersInfo(req: Request, res: Response) {
+    //TODO
     try {
       UserInfo.findAll().then((promise: any) => {
         res.status(200).json(promise)
@@ -346,7 +395,13 @@ export default class UserController {
   /**
    * Atualiza as informações do usuário
    * @param req
-   * @param res
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
 
   static async updateUserInfo(req: Request, res: Response) {
@@ -357,17 +412,35 @@ export default class UserController {
   /**
    * Deleta as informações do usuário da base de dados
    * @param req
-   * @param res
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
   static async deleteUserInfo(req: Request, res: Response) {
     const userid = req.body.id
     await UserInfos.deleteUserInfoByID(userid)
+    //TODO
   }
 
   /**
    * Bloqueia usuário na base de dados
-   * @param req
-   * @param res
+   * @param req {
+            IP: IP,
+            userID: userID,
+            CPF: CPF,
+            email: email,
+    }
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
   static async blockUser(req: Request, res: Response) {
     const IP: string = req.ip
@@ -404,8 +477,19 @@ export default class UserController {
 
   /**
    * Desbloqueia usuário na base de dados
-   * @param req
-   * @param res
+   * @param req {
+            IP: IP,
+            userID: userID,
+            CPF: CPF,
+            email: email,
+    }
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
   static async unblockUser(req: Request, res: Response) {
     const IP: string = req.ip
@@ -444,7 +528,13 @@ export default class UserController {
   /**
    * Obtém lista de todos os usuários bloqueados
    * @param req
-   * @param res
+   * @param res {
+            httpStatus: httpStatus,
+            code: code,
+            message: message,
+            details: details,
+            additionalInfo:additionalInfo
+        }
    */
   static async getBlockedUsers(req: Request, res: Response) {
     try {
