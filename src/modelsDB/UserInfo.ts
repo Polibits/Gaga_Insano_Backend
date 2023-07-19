@@ -1,6 +1,7 @@
 import Sequelize, { Model } from "sequelize";
 import sequelize from '../db/conn';
 import Auth from "../auth/auth";
+import { UserCredentials } from "./UserCredentials";
 
 /**
  * Define modelo das credenciais do usuário, no banco de dados
@@ -23,7 +24,6 @@ export const UserInfo = sequelize.define('UserInfo', {
         type: Sequelize.STRING,
         allowNull: true
     },
-    
     email: {
         type: Sequelize.STRING,
         allowNull: true,
@@ -45,6 +45,5 @@ export const UserInfo = sequelize.define('UserInfo', {
     cpf: {
         type: Sequelize.STRING,
         allowNull: true
-    },
-    
+    }
 });

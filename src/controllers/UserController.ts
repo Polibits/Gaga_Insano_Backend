@@ -1,26 +1,26 @@
-import { Request, Response } from "express";
-import Sequelize, { Model } from "sequelize";
-import { UserCredentials } from "../modelsDB/UserCredentials";
-import { UserInfo } from "../modelsDB/UserInfo";
-import { BlockedUsers } from "../modelsDB/BlockedUsers";
-import { Credentials } from "../models/Credentials";
-import { Message, MessageCode } from "../routes/messages";
-import { UserInfos } from "../models/UserInfos";
-import { userInfo } from "os";
-import { MessageCodeEnum } from "../enums/errorMessages";
-const saltLenght = 128;
+import { Request, Response } from "express"
+import Sequelize, { Model } from "sequelize"
+import { UserCredentials } from "../modelsDB/UserCredentials"
+import { UserInfo } from "../modelsDB/UserInfo"
+import { BlockedUsers } from "../modelsDB/BlockedUsers"
+import { Credentials } from "../models/Credentials"
+import { Message, MessageCode } from "../routes/messages"
+import { UserInfos } from "../models/UserInfos"
+import { userInfo } from "os"
+import { MessageCodeEnum } from "../enums/errorMessages"
+const saltLenght = 128
 
 export default class UserController {
   static deleteUser(arg0: string, deleteUser: any) {
-    throw new Error("Method not implemented.");
+    throw new Error("Method not implemented.")
   }
 
   static createUser(arg0: string, createUser: any) {
-    throw new Error("Method not implemented.");
+    throw new Error("Method not implemented.")
   }
 
   static loginUser(arg0: string, loginUser: any) {
-    throw new Error("Method not implemented.");
+    throw new Error("Method not implemented.")
   }
 
   /**
@@ -29,12 +29,9 @@ export default class UserController {
    * @param res
    */
   static async registerCredentials(req: Request, res: Response) {
-    var sucess = false;
-    const email: string = req.body.email;
-    const password: string = req.body.password;
-    const userCredentials = new Credentials("", "", "");
-
-    userCredentials.generateCredentials(email, password);
+    var email: string = req.body.email
+    var password: string = req.body.password
+    var userCredentials = new Credentials("", "", "")
 
     try {
       /* credenciais válidas */
@@ -42,14 +39,39 @@ export default class UserController {
         hashedEmail: userCredentials.getHashedEmail(),
         hashedPassword: userCredentials.getHashedPassword(),
         salt: userCredentials.getSalt(),
-      };
+      }
 
-      /* registro no banco de dados */
-      const save = await UserCredentials.create(creds);
-      sucess = true;
+      if(!Credentials.validCredentials(email, password)) {
+        /* credenciais inválidas */
+        res.send(Message.response(
+          400,
+          "INVALID_CREDENTIALS",
+          "não foi possível registrar credenciais",
+          "credenciais inválidas",
+          null
+        ))
+      } else {
+        /* registro no banco de dados */
+        const save = await UserCredentials.create(creds)
+
+        /* resposta da API */
+        res.send(Message.response(
+          200,
+          "SUCESS",
+          "credenciais registradas com sucesso",
+          "credenciais de usuário " + email + " foram registradas com sucesso no banco de dados",
+          null
+        ))
+      }
     } catch (error) {
       /* credenciais inválidas */
-      sucess = false;
+      res.send(Message.response(
+        500,
+        "SERVER_ERROR",
+        "não foi possível registrar credenciais",
+        "erro interno do servidor",
+        error
+      ))
     }
   }
 
@@ -59,23 +81,23 @@ export default class UserController {
    * @param res
    */
   static async authenticateCredentials(req: Request, res: Response) {
-    const email: string = req.body.email;
-    const password: string = req.body.password;
-    const hashedEmail = Credentials.hashedEmail(email);
+    const email: string = req.body.email
+    const password: string = req.body.password
+    const hashedEmail = Credentials.hashedEmail(email)
 
     try {
       /* busca pelo usuário na base de dados */
-      const user = UserCredentials.findOne({where: { hashedEmail: hashedEmail }});
+      const user = UserCredentials.findOne({where: { hashedEmail: hashedEmail }})
 
       if (!user) {
         /* credencial não existe */
-        res.send({
-          response: {
-            status: 500,
-            about: "Credenciais não encontradas",
-            message: MessageCodeEnum.FAIL,
-          },
-        });
+        res.send(Message.response(
+          404,
+          "USER_NOT_FOUND",
+          "usuário não foi encontrado",
+          "email informado não está registrado no banco de dados",
+          null
+        ))
       } else {
         /* credencial existe */
         user.then((user: any) => {
@@ -83,35 +105,41 @@ export default class UserController {
             user.hashedEmail,
             user.hashedPassword,
             user.salt
-          );
+          )
 
-          const salt = user.salt;
+          const salt = user.salt
 
           if (userCredentialsInDB.authenticateCredentials(email, password, salt)) {
             /* credenciais válidas */
-            res.send({
-              response: {
-                status: 200,
-                about: "USUÁRIO LOGADO",
-                message: MessageCodeEnum.SUCESS,
-              },
-            });
+            res.send(Message.response(
+              200,
+              "SUCESS",
+              "autenticação bem sucedida",
+              "credenciais informadas estão de acordo com o registro no banco de dados",
+              null
+            ))
           } else {
             /* credenciais inválidas */
-            res.send({
-              response: {
-                status: 500,
-                about: "Credenciais Erradas",
-                message: MessageCodeEnum.USER_NOT_FOUND
-              },
-            });
+            res.send(Message.response(
+              200,
+              "WRONG_CREDENTIALS",
+              "autenticação mal sucedida",
+              "credenciais informadas não estão de acordo com o registro no banco de dados",
+              null
+            ))
           }
         })
       }
 
-    } catch (e: any) {
+    } catch (error) {
       /* falha ao buscar usuário */
-      console.log(e)
+      res.send(Message.response(
+        500,
+        "SERVER_ERROR",
+        "não foi possível autenticar usuário",
+        "erro interno do servidor",
+        error
+      ))
     }
   }
 
@@ -121,20 +149,29 @@ export default class UserController {
    * @param res
    */
   public static async deleteUserCredentials(req: Request, res: Response) {
-    const email: string = req.body.email;
-    const hashedEmail: string = Credentials.hashedEmail(email);
+    const email: string = req.body.email
+    const hashedEmail: string = Credentials.hashedEmail(email)
 
     try {
       /* deleção das credenciais */
-      UserCredentials.destroy({
-        where: {
-          hashedEmail: hashedEmail,
-        },
-      });
-      // TODO implementar
+      UserCredentials.destroy({ where: { hashedEmail: hashedEmail } })
+
+      res.send(Message.response(
+        200,
+        "SUCESS",
+        "credenciais removidas com sucesso",
+        "dados relativos às credenciais informadas foram deletadas dos bancos de dados",
+        null
+      ))
     } catch (error) {
       /* falha ao deletar */
-      // TODO implementar
+      res.send(Message.response(
+        500,
+        "SERVER_ERROR",
+        "não foi possível remover credenciais do usuário",
+        "erro interno do servidor",
+        error
+      ))
     }
   }
 
@@ -144,20 +181,33 @@ export default class UserController {
    * @param res
    */
   public static async updateCredentials(req: Request, res: Response) {
-    const email: string = req.body.email;
-    const hashedEmail: string = Credentials.hashedEmail(email);
-    const hashedPassword: string = req.body.password;
+    const email: string = req.body.email
+    const hashedEmail: string = Credentials.hashedEmail(email)
+    const hashedPassword: string = req.body.password
 
     const user = {
       hashedEmail: hashedEmail,
       hashedPassword,
-    };
+    }
 
     try {
-      await UserCredentials.update(user, {
-        where: { hashedEmail: hashedEmail },
-      });
-    } catch (e: any) { }
+      await UserCredentials.update(user, { where: { hashedEmail: hashedEmail } })
+      res.send(Message.response(
+        200,
+        "SUCESS",
+        "credenciais atualizadas com sucesso",
+        "credenciais foram modificadas nos bancos de dados com sucesso",
+        null
+      ))
+    } catch (error) {
+      res.send(Message.response(
+        500,
+        "SERVER_ERROR",
+        "não foi possível atualizar as credenciais",
+        "erro interno do servidor",
+        error
+      ))
+    }
   }
 
   /**
@@ -167,25 +217,41 @@ export default class UserController {
    * @param Response
    */
   public static async CredentialsExistsInDB(req: Request, res: Response) {
-    const email: string = req.body.email;
-    const hashedEmail: string = Credentials.hashedEmail(email);
+    const email: string = req.body.email
+    const hashedEmail: string = Credentials.hashedEmail(email)
 
     try {
-      /* deleção das credenciais */
-      const user = UserCredentials.find({
-        where: {
-          hashedEmail: hashedEmail,
-        },
-      })
+      /* credenciais existem */
+      const user = UserCredentials.find({ where: { hashedEmail: hashedEmail } })
 
-      if (user != null)
-        return true;
-      else
-        return false;
-      
+      if (user != null){
+        /* credenciais existem no banco de dados */
+        res.send(Message.response(
+          200,
+          "USER_CREDENTIALS_EXISTS",
+          "credenciais informadas existem no banco de dados",
+          "credenciais foram modificadas nos bancos de dados com sucesso",
+          null
+        ))
+      }
+      else {
+        res.send(Message.response(
+          200,
+          "USER_CREDENTIALS_DOES_NOT_EXISTS",
+          "credenciais informadas não existem no banco de dados",
+          "credenciais foram modificadas nos bancos de dados com sucesso",
+          null
+        ))
+      }
     } catch (error) {
       /* falha ao deletar */
-      // TODO implementar
+      res.send(Message.response(
+        500,
+        "SERVER_ERROR",
+        "não foi possível verificar se as credenciais existem",
+        "erro interno do servidor",
+        error
+      ))
     }
   }
 
@@ -203,32 +269,45 @@ export default class UserController {
    */
   static async registerUserInfo(req: Request, res: Response) {
     try {
-      const userId = req.body.userID;
       const userinfo = {
-        description: req.body.description,
-        age: req.body.age,
+        userID: req.body.userID,
+        userType: req.body.userType,
+        username: req.body.username,
+        fullname: req.body.fullname,
+        email: req.body.email,
+        birthday: req.body.birthday,
         gender: req.body.gender,
         phone: req.body.phone,
-        username: req.body.username,
-        socialName: req.body.socialName,
-        cpf: req.body.cpf,
-        birthday: req.body.birthday,
-      };
+        cpf: req.body.cpf
+      }
 
       try {
-        await UserInfo.update(userinfo, { where: { userID: userId } });
-        res.send({
-          response: {
-            status: 200,
-            about: "UserInfo é atualizado/Criado",
-            message: MessageCodeEnum.SUCESS,
-          },
-        });
-      } catch (e: any) {
-        console.log(e);
+        await UserInfo.create(userInfo)
+        res.send(Message.response(
+          200,
+          "SUCESS",
+          "informações do usuário foram registradas com sucesso",
+          "informações do usuário foram registradas nos bancos de dados com sucesso",
+          userinfo
+        ))
+      } catch (error) {
+        res.send(Message.response(
+          500,
+          "SERVER_ERROR",
+          "não foi possível registrar informações do usuário",
+          "erro interno do servidor",
+          error
+        ))
       }
-    } catch (e: any) {
-      console.log(e);
+    } catch (error) {
+      /* falha ao registrar informação */
+      res.send(Message.response(
+        500,
+        "SERVER_ERROR",
+        "não foi possível registrar informações do usuário",
+        "erro interno do servidor",
+        error
+      ))
     }
   }
 
@@ -238,15 +317,15 @@ export default class UserController {
    * @param res
    */
   static async getUserInfo(req: Request, res: Response) {
-    const id: string = req.body.id;
+    const id: string = req.body.id
 
     try {
-      const user = await UserInfos.getUserInfoByID(id);
-      return user;
+      const user = await UserInfos.getUserInfoByID(id)
+      return user
       //TODO : necessário resolver a promise, recomendo fazer uma função em userInfos que pega o user
       // e retorna cada user.getData e forma um JSON, isso resolveria a promise facilmente e sem problemas.
-    } catch (e: any) {
-      console.log(e);
+    } catch (error) {
+      
     }
   }
 
@@ -259,8 +338,8 @@ export default class UserController {
   static async getAllUsersInfo(req: Request, res: Response) {
     try {
       UserInfo.findAll().then((promise: any) => {
-        res.status(200).json(promise);
-      });
+        res.status(200).json(promise)
+      })
     } catch (error: any) { }
   }
 
@@ -271,25 +350,8 @@ export default class UserController {
    */
 
   static async updateUserInfo(req: Request, res: Response) {
-    const userid = req.body.id;
-    try {
-      const user = await UserInfos.getUserInfoByID(userid);
-      user.setAge(req.body.age);
-      user.setDescription(req.body.description);
-      user.setGender(req.body.age);
-      user.setPhone(req.body.phone);
-      user.setSocialName(req.body.socialName);
-      user.setUsername(req.body.username);
-      user.setCpf(req.body.cpf);
-      user.setBirthday(req.body.birthday);
-      try {
-        await UserInfo.save(user);
-      } catch (e: any) {
-        console.log(e);
-      }
-    } catch (e: any) {
-      console.log(e);
-    }
+    const userid = req.body.userID
+    // TODO
   }
 
   /**
@@ -298,8 +360,8 @@ export default class UserController {
    * @param res
    */
   static async deleteUserInfo(req: Request, res: Response) {
-    const userid = req.body.id;
-    await UserInfos.deleteUserInfoByID(userid);
+    const userid = req.body.id
+    await UserInfos.deleteUserInfoByID(userid)
   }
 
   /**
@@ -308,36 +370,35 @@ export default class UserController {
    * @param res
    */
   static async blockUser(req: Request, res: Response) {
-    const IP: string = req.ip;
-    const userID: string = req.body.userID;
-    const CPF: string = req.body.CPF;
-    const email: string = req.body.email;
+    const IP: string = req.ip
+    const userID: string = req.body.userID
+    const CPF: string = req.body.CPF
+    const email: string = req.body.email
 
     const blockedUser = {
       userID: userID,
       IP: IP,
       CPF: CPF,
-      email: email,
-    };
+      email: email
+    }
 
     try {
-      await BlockedUsers.create(blockedUser);
-      res.send({
-        response: {
-          status: 200,
-          about: "Usuário bloBloqueado com CPF : " + CPF,
-          message: MessageCodeEnum.SUCESS,
-        },
-      })
-      // TODO implementar
-    } catch (error: any) {
-      res.send({
-        response: {
-          status: 500,
-          about: error,
-          message: MessageCodeEnum.SUCESS,
-        },
-      });
+      await BlockedUsers.create(blockedUser)
+      res.send(Message.response(
+        200,
+        "SUCESS",
+        "usuário bloqueado com sucesso",
+        "usuário foi bloqueado com sucesso da plataforma",
+        blockedUser
+      ))
+    } catch (error) {
+      res.send(Message.response(
+        500,
+        "SERVER_ERROR",
+        "não foi possível bloquear usuário",
+        "erro interno do servidor",
+        error
+      ))
     }
   }
 
@@ -347,40 +408,36 @@ export default class UserController {
    * @param res
    */
   static async unblockUser(req: Request, res: Response) {
-    const IP: string = req.ip;
-    const userID: string = req.body.userID;
-    const CPF: string = req.body.CPF;
-    const email: string = req.body.email;
+    const IP: string = req.ip
+    const userID: string = req.body.userID
+    const CPF: string = req.body.CPF
+    const email: string = req.body.email
 
     const blockedUser = {
       IP: IP,
       userID: userID,
       CPF: CPF,
       email: email,
-    };
+    }
 
     try {
-      /* deleção das credenciais */
-      BlockedUsers.destroy({
-        where: {
-          CPF: CPF,
-        },
-      });
-      res.send({
-        response: {
-          status: 200,
-          about: "Usuário DesbloBloqueado com CPF : " + CPF,
-          message: MessageCodeEnum.SUCESS,
-        },
-      });
+      /* remover usuário da blacklist */
+      BlockedUsers.destroy({ where: { CPF: CPF } })
+      res.send(Message.response(
+        200,
+        "SUCESS",
+        "usuário desbloqueado com sucesso",
+        "usuário foi desbloqueado com sucesso da plataforma",
+        null
+      ))
     } catch (error) {
-      res.send({
-        response: {
-          status: 500,
-          about: error,
-          message: MessageCodeEnum.SUCESS,
-        },
-      });
+      res.send(Message.response(
+        500,
+        "SERVER_ERROR",
+        "não foi possível desbloquear usuário",
+        "erro interno do servidor",
+        error
+      ))
     }
   }
 
@@ -391,9 +448,9 @@ export default class UserController {
    */
   static async getBlockedUsers(req: Request, res: Response) {
     try {
-      return await BlockedUsers.findAll();
-    } catch (e: any) {
-      console.log(e);
+      return await BlockedUsers.findAll()
+    } catch (error) {
+      //TODO
     }
   }
 }
