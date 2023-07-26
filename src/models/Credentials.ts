@@ -92,7 +92,7 @@ class Credentials {
      * @returns verdadeiro, 
      */
     public static validCredentials(email: string, password:string) {
-        var sucess = false
+        var sucess = true
         // TODO implementar
         return sucess
     }

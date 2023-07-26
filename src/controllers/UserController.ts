@@ -36,7 +36,7 @@ export default class UserController {
     var email: string = req.body.email
     var password: string = req.body.password
     var userCredentials = new Credentials("", "", "")
-
+    userCredentials.generateCredentials(email, password)
     try {
       /* credenciais válidas */
       var creds = {
