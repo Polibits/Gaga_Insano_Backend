@@ -58,5 +58,13 @@ export default  class Auth {
     static newUserId(){
         return (Math.floor(Math.random() * 256)).toString()
     }
-    
+
+    /**
+     * 
+     * @returns 
+     */
+    static newCourseId(){
+        return (Math.floor(Math.random() * 256)).toString()
     }
+    
+}

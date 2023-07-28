@@ -391,7 +391,7 @@ export default class UserController {
       })
     } catch (error: any) { }
   }
-
+  
   /**
    * Atualiza as informações do usuário
    * @param req

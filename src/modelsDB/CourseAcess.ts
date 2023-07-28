@@ -10,8 +10,8 @@ export const CourseAccess = sequelize.define('CourseAccess', {
         allowNull: false,
         unique: true
     },
-    JsonAccess: {
-        type: Sequelize.JSON,
+    CourseAccess: {
+        type: Sequelize.ARRAY,
         allowNull: false
     }
 });
@@ -19,8 +19,17 @@ export const CourseAccess = sequelize.define('CourseAccess', {
 
 /*
 
+userID   |   CourseAccess
+232323      ["curso1", "curso2", "curso3"]
+
 {
-  "userID": {
+  "usuário1": {
+    "course001",
+    "course002",
+    "course003",
+    "course004"
+  },
+  "usuário2": {
     "course001",
     "course002",
     "course003",
